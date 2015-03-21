@@ -10,7 +10,7 @@ import (
 
 func Test_TimedLooper(t * testing.T) {
 	Convey("TimedLooper", t, func() {
-		looper := &TimedLooper{1, 1 * time.Nanosecond, make(chan error), nil}
+		looper := NewTimedLooper(1, 1 * time.Nanosecond, make(chan error))
 
 		Convey("Sends a nil on the DoneChan when everything was kosher", func() {
 			go looper.Done(nil)
@@ -62,7 +62,7 @@ func Test_TimedLooper(t * testing.T) {
 
 func Test_FreeLooper(t * testing.T) {
 	Convey("FreeLooper", t, func() {
-		looper := &FreeLooper{1, make(chan error), nil}
+		looper := NewFreeLooper(1, make(chan error))
 
 		Convey("Sends a nil on the DoneChan when everything was kosher", func() {
 			go looper.Done(nil)
@@ -113,7 +113,7 @@ func Test_FreeLooper(t * testing.T) {
 }
 
 func Example_TimedLooperWithoutQuit() {
-	looper := &TimedLooper{5, 1 * time.Nanosecond, make(chan error), nil}
+	looper := NewTimedLooper(5, 1 * time.Nanosecond, make(chan error))
 
 	runner := func(looper Looper) {
 		x := 0

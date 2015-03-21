@@ -46,6 +46,10 @@ type TimedLooper struct {
 	quitChan chan bool
 }
 
+func NewTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
+	return &TimedLooper{count, interval, done, nil}
+}
+
 func (l *TimedLooper) Wait() error {
 	return <-l.DoneChan
 }
@@ -109,6 +113,10 @@ type FreeLooper struct {
 	Count int
 	DoneChan chan error
 	quitChan chan bool
+}
+
+func NewFreeLooper(count int, done chan error) *FreeLooper {
+	return &FreeLooper{count, done, nil}
 }
 
 func (l *FreeLooper) Wait() error {
