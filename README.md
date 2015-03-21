@@ -3,12 +3,16 @@ Director
 
 This package is built to make it easy to write and to test background
 goroutines. These are the kinds of goroutines that are meant to have a
-reasonable lifespan centered around a central loop.
+reasonably long lifespan built around a central loop. This is often
+a `for {}` loop with no conditions.
 
 The core interface for the package is the `Looper`. Two `Looper`
 implementations are currently included, a `TimedLooper` whichs runs the loop on
 a specified interval, and a `FreeLooper` which runs the loop as quickly as
 possible.
+
+This is really a convenience package to prevent writing boilerplate over and
+over, and to make it easy to test your code.
 
 The `Looper` interface looks like this:
 
@@ -37,8 +41,10 @@ go RunForever()
 ```
 
 This is totally valid code, but it kind of stinks, because we can't easily test
-the code with `go test`. To do that, we need to have a way to get the code to
-quit after iterating. So we can do something like this:
+the code with `go test`. If we start this up, it will never exit, which is what
+we want it to do in our production code. But we want it to stop after running
+in test code. To do that, we need to have a way to get the code to quit after
+iterating. So we can do something like this:
 
 ```go
 func RunForever(quit chan bool) error {
@@ -56,6 +62,7 @@ func RunForever(quit chan bool) error {
 }
 
 quit := make(chan bool, 1)
+quit <-true
 go RunForever(quit)
 ```
 
@@ -68,7 +75,8 @@ But what about when we want to run it more than once in a pass? Or when we want
 to have our code wait on its completion somewhere during execution? These are
 all common patterns and require boilerplate code.  If you do that once in your
 program, fine. But it's often the case that this proliferates all over the
-code. Instead we could use a `FreeLooper` like this:
+code. Particularly for applications which are doing more than one thing in the
+background. Instead we could use a `FreeLooper` like this:
 
 ```go
 func RunForever(looper Looper) error {
