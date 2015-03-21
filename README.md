@@ -40,11 +40,11 @@ func RunForever() error {
 go RunForever()
 ```
 
-This is totally valid code, but it kind of stinks, because we can't easily test
-the code with `go test`. If we start this up, it will never exit, which is what
-we want it to do in our production code. But we want it to stop after running
-in test code. To do that, we need to have a way to get the code to quit after
-iterating. So we can do something like this:
+This works but it kind of stinks, because we can't easily test the code with
+`go test` and we can't capture our error. If we start this up, it will never
+exit, which is what we want it to do in our production code. But we want it to
+stop after running in test code. To do that, we need to have a way to get the
+code to quit after iterating. So we can do something like this:
 
 ```go
 func RunForever(quit chan bool) error {
