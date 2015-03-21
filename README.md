@@ -18,9 +18,14 @@ The `Looper` interface looks like this:
 
 ```go
 type Looper interface {
+	// To be called when we want to run the inner loop. Used by the
+	// dependant code.
 	Loop(fn func() error)
+	// Called by dependant routine. Block waiting for the loop to end
 	Wait() error
+	// Signal that the routine is done. Generally used internally
 	Done(err error)
+	// Externally signal the long-lived goroutine to complete work
 	Quit()
 }
 ```
