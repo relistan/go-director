@@ -3,8 +3,12 @@ Director
 
 This package is built to make it easy to write and to test background
 goroutines. These are the kinds of goroutines that are meant to have a
-reasonably long lifespan built around a central loop. This is often
-a `for {}` loop with no conditions.
+reasonably long lifespan built around a central loop. This is often a `for {}`
+loop with no conditions.
+
+The interface allows routines to be dispatched and run for a set number of
+iterations, or indefinitely. You can also signal them to quit, and block
+waiting for them to complete.
 
 The core interface for the package is the `Looper`. Two `Looper`
 implementations are currently included, a `TimedLooper` whichs runs the loop on
