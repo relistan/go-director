@@ -6,6 +6,7 @@ import (
 
 const (
 	FOREVER = -1
+	ONCE = 1
 )
 
 // A Looper is used in place of a direct call to "for {}" and implements some
