@@ -6,7 +6,7 @@ import (
 
 const (
 	FOREVER = -1
-	ONCE = 1
+	ONCE    = 1
 )
 
 // A Looper is used in place of a direct call to "for {}" and implements some
@@ -29,15 +29,23 @@ type Looper interface {
 // be used to tell the loop to exit on completion of the next iteration.
 // Using both Done and Quit channels allows full external control of the
 // loop.
+//
+// Setting 'Immediate' to 'true' will cause the looper to immediatelly run
+// your function, without waiting for the tick.
 type TimedLooper struct {
-	Count int
-	Interval time.Duration
-	DoneChan chan error
-	quitChan chan bool
+	Count     int
+	Interval  time.Duration
+	DoneChan  chan error
+	quitChan  chan bool
+	Immediate bool
 }
 
 func NewTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
-	return &TimedLooper{count, interval, done, nil}
+	return &TimedLooper{count, interval, done, nil, false}
+}
+
+func NewImmediateTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
+	return &TimedLooper{count, interval, done, nil, true}
 }
 
 func (l *TimedLooper) Wait() error {
@@ -47,7 +55,7 @@ func (l *TimedLooper) Wait() error {
 // Signal a dependant routine that we're done with our work
 func (l *TimedLooper) Done(err error) {
 	if l.DoneChan != nil {
-		l.DoneChan <-err
+		l.DoneChan <- err
 	}
 }
 
@@ -61,9 +69,8 @@ func (l *TimedLooper) Loop(fn func() error) {
 	}
 
 	i := 0
-	ticks := time.Tick(l.Interval)
-	for range ticks {
 
+	runIteration := func() {
 		err := fn()
 		if err != nil {
 			l.Done(err)
@@ -87,6 +94,17 @@ func (l *TimedLooper) Loop(fn func() error) {
 		default:
 		}
 	}
+
+	// Immediatelly run our function if we've been instantiated from
+	// NewImmediateTimedLooper
+	if l.Immediate {
+		runIteration()
+	}
+
+	ticks := time.Tick(l.Interval)
+	for range ticks {
+		runIteration()
+	}
 }
 
 // Quit() signals to the Looper to not run the next iteration and to
@@ -94,13 +112,13 @@ func (l *TimedLooper) Loop(fn func() error) {
 // intervene between iterations.
 func (l *TimedLooper) Quit() {
 	go func() {
-		l.quitChan <-true
+		l.quitChan <- true
 	}()
 }
 
 // A FreeLooper is like a TimedLooper but doesn't wait between iterations.
 type FreeLooper struct {
-	Count int
+	Count    int
 	DoneChan chan error
 	quitChan chan bool
 }
@@ -118,7 +136,7 @@ func (l *FreeLooper) Wait() error {
 // use outside the internals.
 func (l *FreeLooper) Done(err error) {
 	if l.DoneChan != nil {
-		l.DoneChan <-err
+		l.DoneChan <- err
 	}
 }
 
@@ -159,6 +177,6 @@ func (l *FreeLooper) Loop(fn func() error) {
 // intervene between iterations.
 func (l *FreeLooper) Quit() {
 	go func() {
-		l.quitChan <-true
+		l.quitChan <- true
 	}()
 }
