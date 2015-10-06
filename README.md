@@ -138,3 +138,15 @@ iteration per 5 seconds, we can just substitute a `TimedLooper`:
 looper := NewTimedLooper(1, 5 * time.Second, make(chan error))
 go RunForever(looper)
 ```
+
+Lastly, a timed looper will only execute once the tick interval has been met. To immediately execute the first iteration of the loop, you can instantiate an immediate timed looper via the `NewImmediateTimedLooper` function.
+
+Or in other words:
+
+```go
+looper := NewImmediateTimedLooper(10, 5 * time.Second, make(chan error))
+go looper.Loop(func() error { fmt.Println("Immediate execution"); return nil })
+time.Sleep(10 * time.Second)
+
+// STDOUT: "Immediate execution" output as soon as looper.Loop() is ran.
+```

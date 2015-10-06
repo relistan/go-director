@@ -34,10 +34,17 @@ type TimedLooper struct {
 	Interval time.Duration
 	DoneChan chan error
 	quitChan chan bool
+	Immediate bool
 }
 
+// Same as a TimedLooper, except it will execute an iteration of the loop
+// immediately after calling on Loop() (as opposed to waiting until the tick)
 func NewTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
-	return &TimedLooper{count, interval, done, nil}
+	return &TimedLooper{count, interval, done, nil, false}
+}
+
+func NewImmediateTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
+	return &TimedLooper{count, interval, done, nil, true}
 }
 
 func (l *TimedLooper) Wait() error {
@@ -61,9 +68,8 @@ func (l *TimedLooper) Loop(fn func() error) {
 	}
 
 	i := 0
-	ticks := time.Tick(l.Interval)
-	for range ticks {
 
+	runIteration := func() {
 		err := fn()
 		if err != nil {
 			l.Done(err)
@@ -86,6 +92,17 @@ func (l *TimedLooper) Loop(fn func() error) {
 			return
 		default:
 		}
+	}
+
+	// Immediatelly run our function if we've been instantiated via
+	// NewImmediateTimedLooper
+	if l.Immediate {
+		runIteration()
+	}
+
+	ticks := time.Tick(l.Interval)
+	for range ticks {
+		runIteration()
 	}
 }
 
