@@ -60,6 +60,16 @@ func Test_TimedLooper(t * testing.T) {
 	})
 }
 
+func Test_NewImmediateTimedLooper(t *testing.T) {
+	Convey("ImmediateTimedLooper", t, func() {
+		looper := NewImmediateTimedLooper(10, 1 * time.Nanosecond, make(chan error))
+
+		Convey("Immediate looper must have immediate set to true", func() {
+			So(looper.Immediate, ShouldBeTrue)
+		})
+	})
+}
+
 func Test_FreeLooper(t * testing.T) {
 	Convey("FreeLooper", t, func() {
 		looper := NewFreeLooper(1, make(chan error))
