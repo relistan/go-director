@@ -6,7 +6,7 @@ import (
 
 const (
 	FOREVER = -1
-	ONCE = 1
+	ONCE    = 1
 )
 
 // A Looper is used in place of a direct call to "for {}" and implements some
@@ -30,10 +30,10 @@ type Looper interface {
 // Using both Done and Quit channels allows full external control of the
 // loop.
 type TimedLooper struct {
-	Count int
-	Interval time.Duration
-	DoneChan chan error
-	quitChan chan bool
+	Count     int
+	Interval  time.Duration
+	DoneChan  chan error
+	quitChan  chan bool
 	Immediate bool
 }
 
@@ -54,7 +54,7 @@ func (l *TimedLooper) Wait() error {
 // Signal a dependant routine that we're done with our work
 func (l *TimedLooper) Done(err error) {
 	if l.DoneChan != nil {
-		l.DoneChan <-err
+		l.DoneChan <- err
 	}
 }
 
@@ -111,13 +111,13 @@ func (l *TimedLooper) Loop(fn func() error) {
 // intervene between iterations.
 func (l *TimedLooper) Quit() {
 	go func() {
-		l.quitChan <-true
+		l.quitChan <- true
 	}()
 }
 
 // A FreeLooper is like a TimedLooper but doesn't wait between iterations.
 type FreeLooper struct {
-	Count int
+	Count    int
 	DoneChan chan error
 	quitChan chan bool
 }
@@ -135,7 +135,7 @@ func (l *FreeLooper) Wait() error {
 // use outside the internals.
 func (l *FreeLooper) Done(err error) {
 	if l.DoneChan != nil {
-		l.DoneChan <-err
+		l.DoneChan <- err
 	}
 }
 
@@ -176,6 +176,6 @@ func (l *FreeLooper) Loop(fn func() error) {
 // intervene between iterations.
 func (l *FreeLooper) Quit() {
 	go func() {
-		l.quitChan <-true
+		l.quitChan <- true
 	}()
 }
