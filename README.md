@@ -98,7 +98,7 @@ func RunForever(looper Looper) error {
 	})
 }
 
-looper := NewFreeLooper(1, make(chan error))
+looper := NewFreeLooper(FOREVER, make(chan error))
 go RunForever(looper)
 
 err := looper.Wait()
