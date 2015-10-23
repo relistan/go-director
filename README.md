@@ -95,11 +95,6 @@ func RunForever(looper Looper) error {
 		if err != nil {
 			return err
 		}
-
-		select {
-		case <-quit:
-			return nil
-		}
 	})
 }
 
