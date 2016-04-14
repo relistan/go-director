@@ -1,6 +1,7 @@
 package director
 
 import (
+	// "fmt"
 	"time"
 )
 
@@ -40,11 +41,23 @@ type TimedLooper struct {
 // Same as a TimedLooper, except it will execute an iteration of the loop
 // immediately after calling on Loop() (as opposed to waiting until the tick)
 func NewTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
-	return &TimedLooper{count, interval, done, nil, false}
+	return &TimedLooper{
+		Count:     count,
+		Interval:  interval,
+		DoneChan:  done,
+		quitChan:  make(chan bool),
+		Immediate: false,
+	}
 }
 
 func NewImmediateTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
-	return &TimedLooper{count, interval, done, nil, true}
+	return &TimedLooper{
+		Count:     count,
+		Interval:  interval,
+		DoneChan:  done,
+		quitChan:  make(chan bool),
+		Immediate: true,
+	}
 }
 
 func (l *TimedLooper) Wait() error {
@@ -63,16 +76,19 @@ func (l *TimedLooper) Done(err error) {
 // next iteration. If it's an error, it will not run the next iteration,
 // will clean up any internals that need to be, and will invoke done().
 func (l *TimedLooper) Loop(fn func() error) {
-	if l.quitChan == nil {
-		l.quitChan = make(chan bool)
-	}
-
 	i := 0
+
+	var stop bool
+
+	stopFunc := func(err error) {
+		l.Done(err)
+		stop = true
+	}
 
 	runIteration := func() {
 		err := fn()
 		if err != nil {
-			l.Done(err)
+			stopFunc(err)
 			return
 		}
 
@@ -81,14 +97,14 @@ func (l *TimedLooper) Loop(fn func() error) {
 		if l.Count != FOREVER {
 			i = i + 1
 			if i >= l.Count {
-				l.Done(nil)
+				stopFunc(nil)
 				return
 			}
 		}
 
 		select {
 		case <-l.quitChan:
-			l.Done(nil)
+			stopFunc(nil)
 			return
 		default:
 		}
@@ -102,6 +118,10 @@ func (l *TimedLooper) Loop(fn func() error) {
 
 	ticks := time.Tick(l.Interval)
 	for range ticks {
+		if stop {
+			break
+		}
+
 		runIteration()
 	}
 }
@@ -123,7 +143,11 @@ type FreeLooper struct {
 }
 
 func NewFreeLooper(count int, done chan error) *FreeLooper {
-	return &FreeLooper{count, done, nil}
+	return &FreeLooper{
+		Count:    count,
+		DoneChan: done,
+		quitChan: make(chan bool),
+	}
 }
 
 func (l *FreeLooper) Wait() error {
@@ -140,11 +164,8 @@ func (l *FreeLooper) Done(err error) {
 }
 
 func (l *FreeLooper) Loop(fn func() error) {
-	if l.quitChan == nil {
-		l.quitChan = make(chan bool)
-	}
-
 	i := 0
+
 	for {
 		err := fn()
 		if err != nil {
