@@ -52,10 +52,13 @@ func Test_TimedLooper(t *testing.T) {
 
 		Convey("The loop exits when told to quit", func() {
 			looper.Count = FOREVER
-			go looper.Loop(func() error { time.Sleep(5 * time.Nanosecond); return nil })
+			count := 0
+
+			go looper.Loop(func() error { count++; time.Sleep(2 * time.Nanosecond); return nil })
 			looper.Quit()
 
 			So(looper.Wait(), ShouldBeNil)
+			So(count, ShouldBeLessThan, 2)
 		})
 	})
 }
@@ -114,10 +117,13 @@ func Test_FreeLooper(t *testing.T) {
 
 		Convey("The loop exits when told to quit", func() {
 			looper.Count = FOREVER
-			go looper.Loop(func() error { time.Sleep(1 * time.Nanosecond); return nil })
+			count := 0
+
+			go looper.Loop(func() error { count++; time.Sleep(2 * time.Nanosecond); return nil })
 			looper.Quit()
 
 			So(looper.Wait(), ShouldBeNil)
+			So(count, ShouldBeLessThan, 2)
 		})
 	})
 }
