@@ -1,3 +1,5 @@
+![godoc here](https://img.shields.io/badge/godoc-here-blue.svg)
+
 Director
 ========
 This package is built to make it easy to write and to test background
