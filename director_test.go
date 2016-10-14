@@ -144,7 +144,7 @@ func ExampleTimedLooper() {
 	}
 
 	go runner(looper)
-	<-looper.DoneChan
+	looper.Wait()
 
 	// Output:
 	// 0
@@ -171,7 +171,7 @@ func ExampleTimedLooper_Quit() {
 
 	go runner(looper)
 	looper.Quit()
-	<-looper.DoneChan
+	looper.Wait()
 
 	// Output:
 	// 0
@@ -197,7 +197,7 @@ func Example() {
 	}
 
 	go runner(looper)
-	err := <-looper.DoneChan
+	err := looper.Wait()
 
 	if err != nil {
 		fmt.Printf("I got an error: %s\n", err.Error())
