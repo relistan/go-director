@@ -2,6 +2,7 @@ package director
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -128,13 +129,15 @@ func Test_FreeLooper(t *testing.T) {
 	})
 }
 
-func Example_TimedLooperWithoutQuit() {
+// In this example, we run a really fast TimedLooper for a
+// fixed number of runs.
+func ExampleTimedLooper() {
 	looper := NewTimedLooper(5, 1*time.Nanosecond, make(chan error))
 
 	runner := func(looper Looper) {
 		x := 0
 		looper.Loop(func() error {
-			println(x)
+			fmt.Println(x)
 			x++
 			return nil
 		})
@@ -144,4 +147,65 @@ func Example_TimedLooperWithoutQuit() {
 	<-looper.DoneChan
 
 	// Output:
+	// 0
+	// 1
+	// 2
+	// 3
+	// 4
+}
+
+// In this example we run a really fast TimedLooper for a fixed
+// number of runs, but we interrupt it with a Quit() call so
+// it only completes one run.
+func ExampleTimedLooper_Quit() {
+	looper := NewTimedLooper(5, 50*time.Millisecond, make(chan error))
+
+	runner := func(looper Looper) {
+		x := 0
+		looper.Loop(func() error {
+			fmt.Println(x)
+			x++
+			return nil
+		})
+	}
+
+	go runner(looper)
+	looper.Quit()
+	<-looper.DoneChan
+
+	// Output:
+	// 0
+}
+
+// In this example, we are going to run a FreeLooper with 5 iterations.
+// In the course of running, an error is generated, which the parent
+// function captures and outputs. As a result of the error only 3
+// of the 5 iterations are completed and the output reflects this.
+func Example() {
+	looper := NewFreeLooper(5, make(chan error))
+
+	runner := func(looper Looper) {
+		x := 0
+		looper.Loop(func() error {
+			fmt.Println(x)
+			x++
+			if x == 3 {
+				return errors.New("Uh oh")
+			}
+			return nil
+		})
+	}
+
+	go runner(looper)
+	err := <-looper.DoneChan
+
+	if err != nil {
+		fmt.Printf("I got an error: %s\n", err.Error())
+	}
+
+	// Output:
+	// 0
+	// 1
+	// 2
+	// I got an error: Uh oh
 }
