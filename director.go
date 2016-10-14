@@ -25,11 +25,14 @@ type Looper interface {
 // underneath. It also implements Quit and Done channels to allow external
 // routines to more easily control and synchronize the loop.
 //
-// If you pass in a DoneChan at creation time, it will send a true on the
-// channel when the loop has completed. If you pass in a quitChan it can
-// be used to tell the loop to exit on completion of the next iteration.
-// Using both Done and Quit channels allows full external control of the
-// loop.
+// If you pass in a DoneChan at creation time, it will send a nil on the
+// channel when the loop has completed successfully or an error if the loop
+// resulted in an error condition.
+//
+// If you pass in a quitChan it can be used to tell the loop to exit on completion
+// of the next iteration.  Using both Done and Quit channels allows full external
+// control of the loop.
+
 type TimedLooper struct {
 	Count     int
 	Interval  time.Duration
@@ -194,7 +197,7 @@ func (l *FreeLooper) Loop(fn func() error) {
 
 // Quit() signals to the Looper to not run the next iteration and to
 // call Done() and return as quickly as possible. It is does not
-// intervene between iterations.
+// intervene between iterations. It is a non-blocking operation.
 func (l *FreeLooper) Quit() {
 	go func() {
 		l.quitChan <- true
