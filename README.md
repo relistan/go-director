@@ -1,4 +1,4 @@
-![godoc here](https://img.shields.io/badge/godoc-here-blue.svg)
+[![godoc here](https://img.shields.io/badge/godoc-here-blue.svg)](http://godoc.org/github.com/relistan/go-director)
 
 Director
 ========
@@ -10,8 +10,6 @@ loop with no conditions.
 The interface allows routines to be dispatched and run for a set number of
 iterations, or indefinitely. You can also signal them to quit, and block
 waiting for them to complete.
-
-[GoDocs are here](http://godoc.org/github.com/relistan/go-director)
 
 The core interface for the package is the `Looper`. Two `Looper`
 implementations are currently included, a `TimedLooper` whichs runs the loop on
