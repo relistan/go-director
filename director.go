@@ -116,13 +116,14 @@ func (l *TimedLooper) Loop(fn func() error) {
 
 	ticker := time.NewTicker(l.Interval)
 	defer ticker.Stop()
-
-	for range ticker.C {
-		if stop {
-			break
+	for {
+		select {
+		case <-ticker.C:
+			runIteration()
+		case <-l.quitChan:
+			stopFunc(nil)
+			return
 		}
-
-		runIteration()
 	}
 }
 
