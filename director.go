@@ -28,11 +28,6 @@ type Looper interface {
 // If you pass in a DoneChan at creation time, it will send a nil on the
 // channel when the loop has completed successfully or an error if the loop
 // resulted in an error condition.
-//
-// If you pass in a quitChan it can be used to tell the loop to exit on completion
-// of the next iteration.  Using both Done and Quit channels allows full external
-// control of the loop.
-
 type TimedLooper struct {
 	Count     int
 	Interval  time.Duration
@@ -41,8 +36,6 @@ type TimedLooper struct {
 	Immediate bool
 }
 
-// Same as a TimedLooper, except it will execute an iteration of the loop
-// immediately after calling on Loop() (as opposed to waiting until the tick)
 func NewTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
 	return &TimedLooper{
 		Count:     count,
@@ -53,6 +46,8 @@ func NewTimedLooper(count int, interval time.Duration, done chan error) *TimedLo
 	}
 }
 
+// Same as a TimedLooper, except it will execute an iteration of the loop
+// immediately after calling on Loop() (as opposed to waiting until the tick)
 func NewImmediateTimedLooper(count int, interval time.Duration, done chan error) *TimedLooper {
 	return &TimedLooper{
 		Count:     count,
