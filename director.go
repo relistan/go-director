@@ -119,8 +119,10 @@ func (l *TimedLooper) Loop(fn func() error) {
 		runIteration()
 	}
 
-	ticks := time.Tick(l.Interval)
-	for range ticks {
+	ticker := time.NewTicker(l.Interval)
+	defer ticker.Stop()
+
+	for range ticker.C {
 		if stop {
 			break
 		}
