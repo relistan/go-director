@@ -170,6 +170,8 @@ func ExampleTimedLooper_Quit() {
 	}
 
 	go runner(looper)
+	// Wait for one run to complete
+	time.Sleep(90 * time.Millisecond)
 	looper.Quit()
 	looper.Wait()
 
