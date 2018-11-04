@@ -77,7 +77,6 @@ func (l *TimedLooper) Loop(fn func() error) {
 	i := 0
 
 	var stop bool
-
 	stopFunc := func(err error) {
 		l.Done(err)
 		stop = true
@@ -99,13 +98,6 @@ func (l *TimedLooper) Loop(fn func() error) {
 				return
 			}
 		}
-
-		select {
-		case <-l.quitChan:
-			stopFunc(nil)
-			return
-		default:
-		}
 	}
 
 	// Immediatelly run our function if we've been instantiated via
@@ -116,13 +108,21 @@ func (l *TimedLooper) Loop(fn func() error) {
 
 	ticker := time.NewTicker(l.Interval)
 	defer ticker.Stop()
-
-	for range ticker.C {
+	for {
+		// The execution loop needs to be able to stop automatically
+		// after l.Count iterations. It does so when runIteration
+		// invokes stopFunc, which sets `stop` to false.
 		if stop {
 			break
 		}
 
-		runIteration()
+		select {
+		case <-ticker.C:
+			runIteration()
+		case <-l.quitChan:
+			stopFunc(nil)
+			break
+		}
 	}
 }
 
