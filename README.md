@@ -1,4 +1,5 @@
 [![godoc here](https://img.shields.io/badge/godoc-here-blue.svg)](http://godoc.org/github.com/relistan/go-director)
+[![Build Status](https://travis-ci.org/relistan/go-director.svg?branch=master)](https://travis-ci.org/relistan/go-director)
 
 Director
 ========
