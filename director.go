@@ -11,9 +11,9 @@ const (
 )
 
 // A Looper is used in place of a direct call to "for {}" and implements some
-// controls over how the loop will be run. The Loop() function is the main
-// call used by dependant routines. Common patterns like Quit and Done
-// channels are easily implemented in a Looper.
+// controls over how the loop will be run. The Loop() function is the main call
+// used by dependant routines. Common patterns like Quit and Done channels are
+// easily implemented in a Looper.
 type Looper interface {
 	Loop(fn func() error)
 	Wait() error
@@ -70,9 +70,9 @@ func (l *TimedLooper) Done(err error) {
 }
 
 // The main method of the Looper. This call takes a function with a single
-// return value, an error. If the error is nil, the Looper will run the
-// next iteration. If it's an error, it will not run the next iteration,
-// will clean up any internals that need to be, and will invoke done().
+// return value, an error. If the error is nil, the Looper will run the next
+// iteration. If it's an error, it will not run the next iteration, will clean
+// up any internals that need to be, and will invoke done().
 func (l *TimedLooper) Loop(fn func() error) {
 	i := 0
 
@@ -109,9 +109,9 @@ func (l *TimedLooper) Loop(fn func() error) {
 	ticker := time.NewTicker(l.Interval)
 	defer ticker.Stop()
 	for {
-		// The execution loop needs to be able to stop automatically
-		// after l.Count iterations. It does so when runIteration
-		// invokes stopFunc, which sets `stop` to false.
+		// The execution loop needs to be able to stop automatically after
+		// l.Count iterations. It does so when runIteration invokes stopFunc,
+		// which sets `stop` to false.
 		if stop {
 			break
 		}
@@ -126,9 +126,9 @@ func (l *TimedLooper) Loop(fn func() error) {
 	}
 }
 
-// Quit() signals to the Looper to not run the next iteration and to
-// call done() and return as quickly as possible. It is does not
-// intervene between iterations.
+// Quit() signals to the Looper to not run the next iteration and to call
+// done() and return as quickly as possible. It is does not intervene between
+// iterations.
 func (l *TimedLooper) Quit() {
 	go func() {
 		l.quitChan <- true
@@ -154,9 +154,9 @@ func (l *FreeLooper) Wait() error {
 	return <-l.DoneChan
 }
 
-// This is used internally, but can also be used by controlling routines
-// to signal that a job is completed. The FreeLooper doesn's support its
-// use outside the internals.
+// This is used internally, but can also be used by controlling routines to
+// signal that a job is completed. The FreeLooper doesn's support its use
+// outside the internals.
 func (l *FreeLooper) Done(err error) {
 	if l.DoneChan != nil {
 		l.DoneChan <- err
@@ -173,8 +173,8 @@ func (l *FreeLooper) Loop(fn func() error) {
 			return
 		}
 
-		// We have to make sure not to increment if we started
-		// at -1 otherwise we quit on maxint rollover.
+		// We have to make sure not to increment if we started at -1 otherwise
+		// we quit on maxint rollover.
 		if l.Count != FOREVER {
 			i = i + 1
 			if i >= l.Count {
@@ -192,9 +192,9 @@ func (l *FreeLooper) Loop(fn func() error) {
 	}
 }
 
-// Quit() signals to the Looper to not run the next iteration and to
-// call Done() and return as quickly as possible. It is does not
-// intervene between iterations. It is a non-blocking operation.
+// Quit() signals to the Looper to not run the next iteration and to call
+// Done() and return as quickly as possible. It is does not intervene between
+// iterations. It is a non-blocking operation.
 func (l *FreeLooper) Quit() {
 	go func() {
 		l.quitChan <- true
