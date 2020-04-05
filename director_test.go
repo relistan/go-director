@@ -21,7 +21,7 @@ func Test_TimedLooper(t *testing.T) {
 		})
 
 		Convey("Sends the error on the DoneChan when everything exploded", func() {
-			err := errors.New("Borked!")
+			err := errors.New("borked")
 			go looper.Done(err)
 
 			result := looper.Wait()
@@ -46,7 +46,7 @@ func Test_TimedLooper(t *testing.T) {
 		})
 
 		Convey("The loop returns an error on the DoneChan", func() {
-			err := errors.New("Borked!")
+			err := errors.New("borked")
 			go looper.Loop(func() error { return err })
 			So(looper.Wait(), ShouldEqual, err)
 		})
@@ -89,7 +89,7 @@ func Test_FreeLooper(t *testing.T) {
 		})
 
 		Convey("Sends the error on the DoneChan when everything exploded", func() {
-			err := errors.New("Borked!")
+			err := errors.New("borked")
 			go looper.Done(err)
 
 			result := looper.Wait()
@@ -114,7 +114,7 @@ func Test_FreeLooper(t *testing.T) {
 		})
 
 		Convey("The loop returns an error on the DoneChan", func() {
-			err := errors.New("Borked!")
+			err := errors.New("borked")
 			go looper.Loop(func() error { return err })
 			So(looper.Wait(), ShouldEqual, err)
 		})
